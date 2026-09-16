@@ -1,0 +1,24 @@
+---
+- name: Deploy Node Exporter
+  hosts: app
+  become: true
+
+  tasks:
+    - name: Pull Node Exporter image
+      community.docker.docker_image:
+        name: prom/node-exporter
+        tag: latest
+        source: pull
+
+    - name: Run Node Exporter container
+      community.docker.docker_container:
+        name: node-exporter
+        image: prom/node-exporter:latest
+        state: started
+        restart_policy: unless-stopped
+        network_mode: host
+        pid_mode: host
+        volumes:
+          - "/:/host:ro,rslave"
+        command:
+          - "--path.rootfs=/host"
