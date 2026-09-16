@@ -1,0 +1,36 @@
+---
+- name: Deploy Prometheus
+  hosts: monitor
+  become: true
+
+  tasks:
+    - name: Create Prometheus directory
+      ansible.builtin.file:
+        path: /opt/prometheus
+        state: directory
+        mode: "0755"
+
+    - name: Copy Prometheus configuration
+      ansible.builtin.copy:
+        src: files/prometheus.yml
+        dest: /opt/prometheus/prometheus.yml
+        mode: "0644"
+      register: prometheus_config
+
+    - name: Create monitoring Docker network
+      community.docker.docker_network:
+        name: monitoring
+
+    - name: Run Prometheus container
+      community.docker.docker_container:
+        name: prometheus
+        image: prom/prometheus:latest
+        state: started
+        restart_policy: unless-stopped
+        networks:
+          - name: monitoring
+        ports:
+          - "9090:9090"
+        volumes:
+          - "/opt/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
+        recreate: "{{ prometheus_config.changed }}"
