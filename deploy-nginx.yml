@@ -1,0 +1,19 @@
+---
+- name: Deploy Nginx container
+  hosts: app
+  become: true
+
+  tasks:
+    - name: Pull Nginx Docker image
+      command: docker pull nginx:latest
+
+    - name: Remove old Nginx container if present
+      shell: docker rm -f nginx-app || true
+
+    - name: Start Nginx container
+      command: >
+        docker run -d
+        --name nginx-app
+        --restart unless-stopped
+        -p 80:80
+        nginx:latest
