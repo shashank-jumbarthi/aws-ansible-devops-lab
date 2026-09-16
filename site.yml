@@ -1,0 +1,6 @@
+---
+- import_playbook: setup.yml
+- import_playbook: deploy-nginx.yml
+- import_playbook: deploy-node-exporter.yml
+- import_playbook: deploy-prometheus.yml
+- import_playbook: deploy-grafana.yml

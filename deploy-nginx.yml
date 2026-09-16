@@ -1,9 +1,21 @@
 ---
-- name: Deploy Nginx container
+- name: Deploy Nginx Application
   hosts: app
   become: true
 
   tasks:
+    - name: Create Nginx directory
+      ansible.builtin.file:
+        path: /opt/nginx
+        state: directory
+        mode: "0755"
+
+    - name: Copy application webpage
+      ansible.builtin.copy:
+        src: files/nginx/index.html
+        dest: /opt/nginx/index.html
+        mode: "0644"
+
     - name: Pull Nginx image
       community.docker.docker_image:
         name: nginx
@@ -18,3 +30,5 @@
         restart_policy: unless-stopped
         ports:
           - "80:80"
+        volumes:
+          - "/opt/nginx/index.html:/usr/share/nginx/html/index.html:ro"
